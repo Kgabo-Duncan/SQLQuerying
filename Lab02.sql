@@ -60,18 +60,41 @@ products that you sell.*/
 Initially, you need to find the names, colors, and sizes of the products with a product model ID 1.*/
 
 --1. Solution
+SELECT [Name], [Color], [Size]
+	FROM [SalesLT].[Product]
+	WHERE [ProductModelID] = 1;
 
-
-
-2. Filter products by color and size
+/*2. Filter products by color and size
 Retrieve the product number and name of the products that have a color of 'black', 'red', or 'white' and 
-a size of 'S' or 'M'.
-3. Filter products by product number
-Retrieve the product number, name, and list price of products whose product number begins 'BK-'.
-4. Retrieve specific products by product number
+a size of 'S' or 'M'.*/
+
+--2. SOLUTION
+SELECT [ProductNumber], [Name]
+	FROM [SalesLT].[Product]
+	WHERE [Color] 
+		IN ('black', 'red', 'white') 
+		AND [Size] IN ('S', 'M');
+
+/*3. Filter products by product number
+Retrieve the product number, name, and list price of products whose product number begins 'BK-'.*/
+
+--3. Solution
+SELECT [ProductNumber], [Name], [ListPrice]
+	FROM [SalesLT].[Product]
+	WHERE [ProductNumber] 
+		LIKE ('BK-%');
+
+/*4. Retrieve specific products by product number
 Modify your previous query to retrieve the product number, name, and list price of products whose 
 product number begins 'BK-' followed by any character other than 'R’, and ends with a '-' followed by 
-any two numerals.
-Next Steps
+any two numerals.*/
+
+--4. SOLOUTION
+SELECT [ProductNumber], [Name], [ListPrice]
+	FROM [SalesLT].[Product]
+	WHERE [ProductNumber] 
+		LIKE ('BK-R%-[0-9][0-9]');
+
+/*Next Steps
 Well done! You’ve completed the lab, and you’re ready learn how to retrieve data from more than one 
-table in Module 3 – Querying Multiple Tables with Joins in the course Querying with Transact-SQL
+table in Module 3 – Querying Multiple Tables with Joins in the course Querying with Transact-SQL*/
