@@ -28,22 +28,41 @@ SELECT DISTINCT [City],[StateProvince]
 --Checking for number of duplicates for each city/state
 SELECT [City], COUNT([CITY]) AS CountDuplicates ,[StateProvince]
 	FROM [SalesLT].[Address]
-		GROUP BY [CITY],[StateProvince]
+	GROUP BY [CITY],[StateProvince]
 	HAVING COUNT(CITY)>1;
 
 /*2. Retrieve the heaviest products
 Transportation costs are increasing and you need to identify the heaviest products. Retrieve the names 
-of the top ten percent of products by weight.
-3. Retrieve the heaviest 100 products not including the heaviest ten
+of the top ten percent of products by weight.*/
+
+--2. Solution
+SELECT TOP 10 PERCENT [Name], [Weight]
+	FROM [SalesLT].[Product] 
+	ORDER BY WEIGHT DESC;
+
+/*3. Retrieve the heaviest 100 products not including the heaviest ten
 The heaviest ten products are transported by a specialist carrier, therefore you need to modify the 
 previous query to list the heaviest 100 products not including the heaviest ten.*/
 
+--3. SOLUTION
+SELECT  [Name], [Weight]
+	FROM [SalesLT].[Product]
+	ORDER BY WEIGHT DESC
+		OFFSET 10 ROWS 
+	FETCH NEXT 100 ROWS ONLY;
+
 /*Challenge 2: Retrieve Product Data
 The Production Manager at Adventure Works would like you to create some reports listing details of the 
-products that you sell.
-Tip: Review the documentation for the WHERE and LIKE keywords in the Transact-SQL Reference.
-1. Retrieve product details for product model 1
-Initially, you need to find the names, colors, and sizes of the products with a product model ID 1.
+products that you sell.*/
+--Tip: Review the documentation for the WHERE and LIKE keywords in the Transact-SQL Reference.
+
+/*1. Retrieve product details for product model 1
+Initially, you need to find the names, colors, and sizes of the products with a product model ID 1.*/
+
+--1. Solution
+
+
+
 2. Filter products by color and size
 Retrieve the product number and name of the products that have a color of 'black', 'red', or 'white' and 
 a size of 'S' or 'M'.
