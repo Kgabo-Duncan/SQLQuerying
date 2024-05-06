@@ -95,30 +95,59 @@ FROM [SalesLT].[Customer];
 SELECT [FirstName] + ' '+ISNULL([MiddleName],'') +' '+[LastName] AS CustomerNames
 FROM [SalesLT].[Customer];
 
-2. Retrieve primary contact details
+/*2. Retrieve primary contact details
 Customers may provide adventure Works with an email address, a phone number, or both. If an email 
 address is available, then it should be used as the primary contact method; if not, then the phone 
 number should be used. You must write a query that returns a list of customer IDs in one column, and a 
 second column named PrimaryContact that contains the email address if known, and otherwise the 
-phone number.
-IMPORTANT: In the sample data provided in AdventureWorksLT, there are no customer records 
+phone number.*/
+
+--SOLUTION
+SELECT [CustomerID], COALESCE([EmailAddress],[Phone]) AS PrimaryContact
+FROM [SalesLT].[Customer];
+--OR
+SELECT [CustomerID], ISNULL([EmailAddress],[Phone]) AS PrimaryContact
+FROM [SalesLT].[Customer];
+
+--OR
+SELECT [CustomerID],
+	CASE 
+		WHEN [EmailAddress]  IS NOT NULL THEN [EmailAddress]
+			ELSE [Phone]
+		END AS PrimaryContact
+	FROM [SalesLT].[Customer];
+
+ 
+/*IMPORTANT: In the sample data provided in AdventureWorksLT, there are no customer records 
 without an email address. Therefore, to verify that your query works as expected, run the following 
 UPDATE statement to remove some existing email addresses before creating your query (don’t worry, 
-you’ll learn about UPDATE statements later in the course).
+you’ll learn about UPDATE statements later in the course).*/
 UPDATE SalesLT.Customer
 SET EmailAddress = NULL
 WHERE CustomerID % 7 = 1;
-3. Retrieve shipping status
+
+/*3. Retrieve shipping status
 You have been asked to create a query that returns a list of sales order IDs and order dates with a 
 column named ShippingStatus that contains the text “Shipped” for orders with a known ship date, and 
-“Awaiting Shipment” for orders with no ship date.
-IMPORTANT: In the sample data provided in AdventureWorksLT, there are no sales order header 
+“Awaiting Shipment” for orders with no ship date.*/
+
+--SOLUTION
+SELECT [SalesOrderID], [OrderDate],
+	CASE 
+		WHEN [ShipDate] IS NOT NULL THEN 'Shipped'
+			ELSE 'Awaiting Shipment'
+		END AS ShippingStatus
+FROM [SalesLT].[SalesOrderHeader];
+
+I/*MPORTANT: In the sample data provided in AdventureWorksLT, there are no sales order header 
 records without a ship date. Therefore, to verify that your query works as expected, run the following 
 UPDATE statement to remove some existing ship dates before creating your query (don’t worry, you’ll 
-learn about UPDATE statements later in the course).
+learn about UPDATE statements later in the course).*/
+
 UPDATE SalesLT.SalesOrderHeader
 SET ShipDate = NULL
 WHERE SalesOrderID > 71899;
-Next Steps
+
+/*Next Steps
 Well done! You’ve completed the lab, and you’re ready to continue learning about more complex 
-SELECT query syntax in Module 2 – Querying Tables with SELECT in the Course Querying with TransactSQL.
+SELECT query syntax in Module 2 – Querying Tables with SELECT in the Course Querying with TransactSQL./*
