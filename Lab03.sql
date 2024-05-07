@@ -22,9 +22,10 @@ from the SalesLT.Customer table, and the sales order ID and total due from the
 SalesLT.SalesOrderHeader table.*/
 
 --1. SOLUTION
-SELECT C.[CompanyName], oh.[SalesOrderID], oh.[TotalDue]
+SELECT C.[CompanyName], 
+	   oh.[SalesOrderID], oh.[TotalDue]
 FROM [SalesLT].[Customer] AS c
-INNER JOIN [SalesLT].[SalesOrderHeader]AS oh
+	INNER JOIN [SalesLT].[SalesOrderHeader]AS oh
 ON c.[CustomerID] = oh.[CustomerID]
 ORDER BY oh.[TotalDue] DESC;
 
@@ -60,11 +61,13 @@ showing the sales order ID and total due for each order they have placed. Custom
 placed any orders should be included at the bottom of the list with NULL values for the order ID and 
 total due.*/
 
-SELECT c.[CompanyName], c.[FirstName], c.LastName,  oh.[SalesOrderID], oh.[TotalDue]
+--1. SOLUTION
+SELECT c.[CompanyName], c.[FirstName], c.LastName,  
+	   oh.[SalesOrderID], oh.[TotalDue]
 FROM SalesLT.Customer AS c
 		LEFT OUTER JOIN [SalesLT].[SalesOrderHeader] AS oh
-	ON c.CustomerID = oh.CustomerID
-	ORDER BY oh.SalesOrderID DESC;
+ON c.CustomerID = oh.CustomerID
+ORDER BY oh.SalesOrderID DESC;
 
 /*2. Retrieve a list of customers with no address
 A sales employee has noticed that Adventure Works does not have address information for all 
@@ -73,10 +76,10 @@ customers. You must write a query that returns a list of customer IDs, company n
 
 --2. SOLUTION
 SELECT c.[CustomerID],c.[CompanyName],c.[FirstName],c.[LastName]
-	from [SalesLT].[Customer] as c
+FROM [SalesLT].[Customer] as c
 	LEFT JOIN [SalesLT].[CustomerAddress] AS ca
-	ON CA.CustomerID = c.CustomerID
-	WHERE AddressID IS NULL;
+ON CA.CustomerID = c.CustomerID
+WHERE AddressID IS NULL;
 
 /*3.Retrieve a list of customers and products without orders
 Some customers have never placed orders, and some products have never been ordered. Create a query 
@@ -85,8 +88,22 @@ product IDs for products that have never been ordered. Each row with a customer 
 NULL product ID (because the customer has never ordered a product) and each row with a product ID 
 should have a NULL customer ID (because the product has never been ordered by a customer).*/
 
+--3. SOLUTION
+SELECT c.[CustomerID], 
+	   p.[ProductID]
+FROM SalesLT.Customer AS c
+FULL JOIN SalesLT.SalesOrderHeader AS oh
+ON c.CustomerID = oh.CustomerID
+FULL JOIN SalesLT.SalesOrderDetail AS od
+-- join based on the SalesOrderID
+ON od.SalesOrderID = oh.SalesOrderID
+FULL JOIN SalesLT.Product AS p
+-- join based on the ProductID
+ON p.ProductID = od.ProductID
+-- filter for nonexistent SalesOrderIDs
+WHERE oh.SalesOrderID IS NULL
+ORDER BY ProductID, CustomerID;
 
-
-Next Steps
+/*Next Steps
 Well done! You’ve completed the lab, and you’re ready to move onto Module 4 – Using SET Operators
-in the course Querying with Transact-SQL
+in the course Querying with Transact-SQL/*
