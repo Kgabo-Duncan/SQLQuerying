@@ -18,7 +18,7 @@ queries that retrieve information about these products*/
 /*1. Retrieve product model descriptions
 Retrieve the product ID, product name, product model name, and product model summary for each 
 product from the SalesLT.Product table and the SalesLT.vProductModelCatalogDescription view.*/
-SELECT p.[ProductID], p.[Name] AS Product, vpm.[Name] AS ProductModelname, vpm.[Summary]
+SELECT p.[ProductID], p.[Name] AS Product, vpm.[Name] AS ProductModelName, vpm.[Summary]
 	FROM [SalesLT].[Product] AS p 
 			INNER JOIN [SalesLT].[vProductModelCatalogDescription] AS vpm
 		ON  p.[ProductModelID] = vpm.[ProductModelID];
