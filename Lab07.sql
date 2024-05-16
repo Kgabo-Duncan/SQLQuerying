@@ -65,7 +65,7 @@ SELECT p.[ProductID], p.[Name] As Product, udfac.[ProductCategoryName], udfac.[P
 	FROM [SalesLT].[Product] AS p
 			INNER JOIN dbo.ufnGetAllCategories() AS udfac
 		ON p.ProductCategoryID = udfac.ProductCategoryID
-	ORDER BY udfac.[ParentProductCategoryName] ;
+ORDER BY udfac.[ParentProductCategoryName] ;
 
 
 /*Challenge 2: Retrieve Customer Sales Revenue
@@ -79,7 +79,21 @@ Retrieve a list of customers in the format Company (Contact Name) together with 
 that customer. Use a derived table or a common table expression to retrieve the details for each sales 
 order, and then query the derived table or CTE to aggregate and group the data.*/
 
+WITH CTE_revenue([CompanyName], CustomerContactNames, Revenue )
+AS (
+		SELECT p.[CompanyName], CONCAT(p.[FirstName]+' ', p.[LastName]) AS CustomerContactNames, SUM(oh.[TotalDue]) AS Revenue
+			FROM [SalesLT].[Customer] as p
+					JOIN [SalesLT].[SalesOrderHeader] AS oh
+				ON p.[CustomerID] = oh.CustomerID
+			GROUP BY p.[CompanyName], CONCAT(p.[FirstName]+' ', p.[LastName])
+			
+    )
+SELECT  [CompanyName], CustomerContactNames, Revenue
+	FROM CTE_revenue
+ORDER BY Revenue DESC;
+
 /*Next Steps
 Well done! You’ve completed the lab, and you’re ready to learn how to summarize data by specifying 
 grouping sets and pivoting data in Module 8 – Grouping Sets and Pivoting Data in the Course Querying 
 with Transact-SQL*/
+
