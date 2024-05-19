@@ -61,7 +61,7 @@ appropriate ProductCategoryID value.
 After you have inserted the products, query the SalesLT.Product and SalesLT.ProductCategory tables to 
 verify that the data has been inserted. */
 
---------------------------------------------------------------------------------------------------------------
+--_____________________________________________________________________________________________________________
 --2.SOLUTION
 --Write a query to insert the new product category
 INSERT INTO [SalesLT].[ProductCategory] ( [ParentProductCategoryID], [Name])
@@ -82,7 +82,7 @@ SELECT p.[Name] AS ProductName, [ProductNumber],  p.[StandardCost], p.[ListPrice
 			INNER JOIN [SalesLT].[ProductCategory] AS PC
 		ON  p.[ProductCategoryID]= IDENT_CURRENT('[SalesLT].[ProductCategory]')
 WHERE pc.[ProductCategoryID] = IDENT_CURRENT('[SalesLT].[ProductCategory]');
--------------------------------------------------------------------------------------------------------------------
+--________________________________________________________________________________________________________________
 
 /*Challenge 2: Updating Products 
 You have inserted data for a product, but the pricing details are not correct. You must now update the 
@@ -93,15 +93,40 @@ Tip: Review the documentation for UPDATE in the Transact-SQL Language Reference.
 The sales manager at Adventure Works has mandated a 10% price increase for all products in the Bells 
 and Horns category. Update the rows in the SalesLT.Product table for these products to increase their 
 price by 10%. */
-2. Discontinue products 
+
+---------------------------------------------------------------------------------------------------------------
+--Checking Product category where the name is "Bells and Horns"
+SELECT [ProductCategoryID],[Name]
+	FROM [SalesLT].[ProductCategory] 
+ WHERE [Name] = 'Bells and Horns';
+--1.SOLUTION
+--Updating the records where name is "Bells and Horns " using Sub-Query
+UPDATE [SalesLT].[Product]	
+	SET  [ListPrice] = ( ([ListPrice]*0.1)+[ListPrice])
+	FROM [SalesLT].[Product]
+	WHERE	[ProductCategoryID] =  ( SELECT [ProductCategoryID] 
+							FROM [SalesLT].[ProductCategory]
+						WHERE [Name] = 'Bells and Horns'
+					   );
+					  
+/*2. Discontinue products 
 The new LED lights you inserted in the previous challenge are to replace all previous light products. 
 Update the SalesLT.Product table to set the DiscontinuedDate to today’s date for all products in the 
-Lights category (Product Category ID 37) other than the LED Lights product you inserted previously. 
-Challenge 3: Deleting Products 
-The Bells and Horns category has not been successful, and it must be deleted from the database. 
-Tip: Review the documentation for DELETE in the Transact-SQL Language Reference. 
-1. Delete a product category and its products 
+Lights category (Product Category ID 37) other than the LED Lights product you inserted previously. */
 
+UPDATE [SalesLT].[Product]
+SET DiscontinuedDate = GETDATE()
+WHERE [ProductCategoryID] = 37 AND [ProductNumber] != 'LT-L123';
+
+/*Challenge 3: Deleting Products 
+The Bells and Horns category has not been successful, and it must be deleted from the database. 
+Tip: Review the documentation for DELETE in the Transact-SQL Language Reference. */
+
+/*1. Delete a product category and its products 
+Delete the records foe the Bells and Horns category and its products. You must ensure that you delete 
+the records from the tables in the correct order to avoid a foreign-key constraint violation. */
+
+---------------------------------------------------------------------------------------------------------
 DELETE FROM SalesLT.Product
 WHERE ProductCategoryID =
     (SELECT ProductCategoryID FROM SalesLT.ProductCategory WHERE Name = 'Bells and Horns');
@@ -109,12 +134,11 @@ WHERE ProductCategoryID =
 DELETE FROM SalesLT.ProductCategory
 WHERE ProductCategoryID =
     (SELECT ProductCategoryID FROM SalesLT.ProductCategory WHERE Name = 'Bells and Horns');
+--________________________________________________________________________________________________________
 
-Delete the records foe the Bells and Horns category and its products. You must ensure that you delete 
-the records from the tables in the correct order to avoid a foreign-key constraint violation. 
-Next Steps 
+/*Next Steps 
 Well done! You’ve completed the lab, and you’re ready to learn how to implement procedural logic in 
 Transact-SQL by completing Module 10 – Programming with Transact-SQL in the Course Querying with 
-Transact-SQL.
+Transact-SQL.*/
 
 
