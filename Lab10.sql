@@ -29,7 +29,7 @@ After the script has inserted the record, it should display the inserted SalesOr
 command.
 Test your code with the following values:
 Order Date Due Date Customer ID
-Today’s date 7 days from now 1*/
+Today’s date 7 days from now */
 
 /*Note: Support for Sequence objects was added to Azure SQL Database in version 12, which became 
 available in some regions in February 2015. If you are using the previous version of Azure SQL database 
@@ -38,7 +38,7 @@ adapt your code to insert the sales order header without specifying the SalesOrd
 IDENTITY column in older versions of the sample database), and then assign the most recently 
 generated identity value to the variable you have declared.*/
 
---SOLUTION
+--1. SOLUTION
 
 /*Declaring variables*/
 DECLARE @CustomerID INT= 1;
@@ -50,17 +50,7 @@ VALUES( @CustomerID, @DueDate, @OrderDate, 'CARGO TRANSPORT 5' );
 
 PRINT (SCOPE_IDENTITY() );--checking the inserted salesOrderID since it is an Identity column
 
-select salesorderId, CustomerID, DueDate, OrderDate, ShipMethod from SalesLT.SalesOrderHeader
-where customerId = 1;
-
-delete from SalesLT.SalesOrderHeader
-where SalesOrderID= 4 
-
-SELECT * FROM SalesLT.SalesOrderHeader
-
-
-
-2. Write code to insert an order detail
+/*2. Write code to insert an order detail
 The script to insert an order detail must enable users to specify a sales order ID, a product ID, a quantity, 
 and a unit price. It must then check to see if the specified sales order ID exists in the 
 SalesLT.SalesOrderHeader table. If it does, the code should insert the order details into the 
@@ -76,15 +66,49 @@ a sales order header.
 760 1 782.99
 Then test it again with the following values:
 Sales Order ID Product ID Quantity Unit Price
-0 760 1 782.99
-Challenge 2: Updating Bike Prices
+0 760 1 782.99*/
+
+-- 2. SOLUTION
+DECLARE @CustID INT = 1;
+DECLARE @DateDue DATETIME = DATEADD( DD, 7, GETDATE() );
+DECLARE @DateOrdered DATETIME = GETDATE();
+DECLARE @OrderID INT = SCOPE_IDENTITY();
+PRINT @OrderID;
+
+INSERT INTO SalesLT.SalesOrderHeader ( CustomerID, DueDate, OrderDate, ShipMethod  )
+VALUES ( @CustID, @DateDue, @DateOrdered, 'CARGO TRANSPORT 5')
+
+DECLARE @ProductID INT = 760
+DECLARE @OrderQty INT = 1
+DECLARE @UnitPrice MONEY = 782.99
+
+IF EXISTS
+	(	SELECT * 
+			FROM SalesLT.SalesOrderheader 
+		WHERE SalesOrderID = @OrderID 
+	)
+
+BEGIN
+	INSERT INTO SalesLT.SalesOrderDetail (SalesOrderID, ProductID, OrderQty, UnitPrice )
+	VALUES( @OrderID, @ProductID, @OrderQty, @UnitPrice )
+END
+ELSE
+BEGIN
+	PRINT 'OrderID does not exist'
+END
+
+SELECT * FROM SalesLT.SalesOrderDetail 
+WHERE ProductID = 760;
+
+/*Challenge 2: Updating Bike Prices
 Adventure Works has determined that the market average price for a bike is $2,000, and consumer 
 research has indicated that the maximum price any customer would be likely to pay for a bike is $5,000.
 You must write some Transact-SQL logic that incrementally increases the list price for all bike products 
 by 10% until the average list price for a bike is at least the same as the market average, or until the most 
 expensive bike is priced above the acceptable maximum indicated by the consumer research.
-Tip: Review the documentation for WHILE in the Transact-SQL Language Reference.
-1. Write a WHILE loop to update bike prices
+Tip: Review the documentation for WHILE in the Transact-SQL Language Reference.*/
+
+/*1. Write a WHILE loop to update bike prices
 The loop should:
  Execute only if the average list price of a product in the ‘Bikes’ parent category is less than the 
 market average. Note that the product categories in the Bikes parent category can be 
@@ -93,8 +117,62 @@ determined from the SalesLT.vGetAllCategories view.
  Determine the new average and maximum selling price for products that are in the ‘Bikes’ 
 parent category.
  If the new maximum price is greater than or equal to the maximum acceptable price, exit the 
-loop; otherwise continue.
-Next Steps
+loop; otherwise continue.*/
+
+-- 1. SOLUTION
+SELECT AVG(ListPrice), MAX(ListPrice)
+FROM SalesLT.Product
+WHERE ProductCategoryID IN
+ (SELECT DISTINCT ProductCategoryID
+ FROM SalesLT.vGetAllCategories
+ WHERE ParentProductCategoryName = 'Bikes');
+
+DECLARE @MarketAvg MONEY = 2000;
+DECLARE @MarketMax MONEY = 5000;
+DECLARE @AvgListPrice MONEY;
+DECLARE @MaxListPrice MONEY;
+
+SELECT @AvgListPrice = AVG( ListPrice ), @MaxListPrice = MAX( ListPrice )
+FROM SalesLT.Product
+WHERE ProductCategoryID IN
+					(	SELECT DISTINCT ProductCategoryID 
+							FROM SalesLT.vGetAllCategories 
+						WHERE ParentProductCategoryName = 'Bikes'
+					);
+
+
+WHILE ( @AvgListPrice < @MarketAvg )
+BEGIN
+	UPDATE SalesLT.Product
+	SET ListPrice = ListPrice * 1.1
+	WHERE ProductCategoryID 
+		IN ( 
+				SELECT DISTINCT ProductCategoryID 
+					FROM SalesLT.vGetAllCategories 
+				WHERE ParentProductCategoryName = 'Bikes' 
+							   
+		   );
+
+SELECT @AvgListPrice = AVG(ListPrice), @MaxListPrice = MAX(ListPrice)
+	FROM SalesLT.Product
+WHERE ProductCategoryID IN
+	(	SELECT DISTINCT ProductCategoryID
+			FROM SalesLT.vGetAllCategories
+		WHERE ParentProductCategoryName = 'Bikes'
+	);
+PRINT (@AvgListPrice);
+PRINT ( @MaxListPrice)
+
+IF @MaxListPrice >= @MarketMax
+	BREAK
+ELSE
+	CONTINUE
+END
+
+PRINT 'New average bike price:' + CONVERT(VARCHAR, @AvgListPrice);
+PRINT 'New maximum bike price:' + CONVERT(VARCHAR, @MaxListPrice);
+
+/*Next Steps
 Well done! You’ve completed the lab, and you’re ready to learn how to handle errors and implement 
 transactions in Transact-SQL by completing Module 11 – Error handling and Transactions in the Course 
-Querying with Transact-SQL
+Querying with Transact-SQL*/
